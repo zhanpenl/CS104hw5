@@ -1,6 +1,7 @@
 #include "load_window.h"
 
 LoadWindow::LoadWindow() {
+	setWindowTitle("load");
 	loadLayout = new QVBoxLayout();
 
 	filenameLabel = new QLabel("pleae specify a file name:");
@@ -21,6 +22,7 @@ LoadWindow::LoadWindow() {
 
 	// error window
 	errWin = new QWidget();
+	errWin->setWindowTitle("load error");
 	QVBoxLayout* errorLayout = new QVBoxLayout();
 
 	errorMsgLabel = new QLabel();
@@ -32,7 +34,8 @@ LoadWindow::LoadWindow() {
 
 	errWin->setLayout(errorLayout);
 
-	// debug window
+	// debug window 
+	debugWin = NULL;
 }
 
 LoadWindow::~LoadWindow() {
@@ -46,6 +49,7 @@ LoadWindow::~LoadWindow() {
 	delete errorConfirmButton;
 	// delete errorLayout; why?
 	delete errWin;
+	delete debugWin;
 }
 
 void LoadWindow::loadProgram() {
@@ -58,6 +62,17 @@ void LoadWindow::loadProgram() {
 		return;
 	}
 
+	debugWin = new DebugWindow(filename);
+	// load codes
+	std::string codeline;
+	while ( std::getline(ifs, codeline) != NULL ) {
+		debugWin->addItem2CodeList(codeline);
+	}
+
+	ifs.close();
+
+	debugWin->show();
+	hide();
 }
 
 void LoadWindow::errorConfirm() {

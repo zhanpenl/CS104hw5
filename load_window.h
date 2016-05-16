@@ -13,6 +13,8 @@
 #include <iostream>
 #include <string>
 
+#include "debug_window.h"
+
 
 class LoadWindow : public QWidget {
 Q_OBJECT
@@ -41,7 +43,8 @@ private:
 	QLabel* errorMsgLabel;
 	QPushButton* errorConfirmButton;
 
-	// DebugWindow* debugWin;
+	// debug window
+	DebugWindow* debugWin;
 };
 
 

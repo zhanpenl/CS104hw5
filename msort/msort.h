@@ -19,13 +19,6 @@ struct DscComp {
  	}
 }; 
 
-// template <class T>
-// struct AbsAscComp {
-// 	bool operator() (const T& lhs, const T& rhs) {
-// 		return abs(lhs) <= abs(rhs);
-// 	}
-// };
-
 struct AlphaStrComp {
 	bool operator() (const std::string& lhs, const std::string& rhs) {
 		return lhs <= rhs;
@@ -38,6 +31,33 @@ struct LengthStrComp {
 	}
 };
 
+struct PairFirstCompAsc
+{
+	bool operator() (const std::pair<std::string, int>& lhs, const std::pair<std::string, int>& rhs) {
+		return lhs.first < rhs.first;
+	}
+};
+
+struct PairFirstCompDesc
+{
+	bool operator() (const std::pair<std::string, int>& lhs, const std::pair<std::string, int>& rhs) {
+		return lhs.first > rhs.first;
+	}
+};
+
+struct PairSecondCompAsc
+{
+	bool operator() (const std::pair<std::string, int>& lhs, const std::pair<std::string, int>& rhs) {
+		return lhs.second < rhs.second;
+	}
+};
+
+struct PairSecondCompDesc
+{
+	bool operator() (const std::pair<std::string, int>& lhs, const std::pair<std::string, int>& rhs) {
+		return lhs.second > rhs.second;
+	}
+};
 
 
 template <class T, class Comparator>

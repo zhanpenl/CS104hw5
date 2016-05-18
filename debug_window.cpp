@@ -24,7 +24,9 @@ DebugWindow::DebugWindow(std::string filename) {
 	debugButtonLayout->addWidget(nextButton);
 
 	connect(breakButton, SIGNAL(clicked()), this, SLOT(breakHighlight()));
-	connect(stepButton, SIGNAL(clicked()), this, SLOT(step()));
+	connect(stepButton, SIGNAL(clicked()), this, SLOT(pStep()));
+	connect(continueButton, SIGNAL(clicked()), this, SLOT(pContinue()));
+	connect(nextButton, SIGNAL(clicked()), this, SLOT(pNext()));
 
 	// other button section
 	otherButtonLayout = new QHBoxLayout();
@@ -75,21 +77,74 @@ void DebugWindow::addItem2CodeList(const std::string& line) {
 	codeList->addItem(QString::fromStdString(line));
 }
 
-void DebugWindow::breakHighlight() {
-	int currLine = codeList->currentRow();
-	QBrush qbrush(QColor(Qt::darkCyan));
-	codeList->item(currLine)->setBackground(qbrush);
+// check if current line is a break point
+bool DebugWindow::isBreak() {
+	return breakpoints.find(state->getLine()) != breakpoints.end();
 }
 
-void DebugWindow::step() {
+void DebugWindow::breakHighlight() {
+	int curRow = codeList->currentRow();
+	QBrush qbrush(QColor(Qt::darkCyan));
+	codeList->item(curRow)->setBackground(qbrush);
+	breakpoints.insert(curRow + 1); // insert the break point in the set
+}
+
+void DebugWindow::pStep() {
 	// if terminated, start again
-	if ( state->getLine() == -1 ) {
+	if ( state->isTerminated() ) {
 		delete state;
 		state = new ProgramState(program.size() - 1);
 	}
 	program[state->getLine()]->execute(state, std::cout); // take a step of the program
-	codeList->setCurrentRow(state->getLine() - 1);	// show the progress by selection of row
+	if ( state->isTerminated() ) codeList->setCurrentRow(0);
+	else codeList->setCurrentRow(state->getLine() - 1);	// show the progress by selection of row
 }
+
+void DebugWindow::pContinue() {
+	if ( state->isTerminated() ) {
+		delete state;
+		state = new ProgramState(program.size() - 1);
+	}
+
+	// if previously is a breakpoint, take a step first
+	if ( !state->isTerminated() && isBreak() ) {
+		program[state->getLine()]->execute(state, std::cout);
+	}
+
+	// continue the program	
+	while ( !state->isTerminated() && !isBreak() ) {
+		program[state->getLine()]->execute(state, std::cout);
+	}
+
+	if ( state->isTerminated() ) codeList->setCurrentRow(0);
+	else codeList->setCurrentRow(state->getLine() - 1);
+}
+
+void DebugWindow::pNext() {
+	if ( state->isTerminated() ) {
+		delete state;
+		state = new ProgramState(program.size() - 1);
+	}
+
+	int nextline = state->getLine() + 1;
+	// like pStep()
+	if ( !state->isTerminated() && isBreak() ) {
+		program[state->getLine()]->execute(state, std::cout);
+	}
+	// progress util the next line, or the end, 
+	// or the next breakpoint, whichever first encountered
+	// ** problematic, going to the next is not always correct, 
+	// ** should condition on the situation where the current line is GOSUB statement
+	// ** can return when there is breakpoint in the subroutine; if-then 
+	while ( state->getLine() != nextline && !isBreak() && !state->isTerminated() ) {
+		program[state->getLine()]->execute(state, std::cout);
+	}
+
+
+	if ( state->isTerminated() ) codeList->setCurrentRow(0);
+	else codeList->setCurrentRow(state->getLine() - 1);
+}
+
 
 void DebugWindow::showInspect() {
 	inspectWin->show();

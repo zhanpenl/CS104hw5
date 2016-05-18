@@ -26,6 +26,10 @@ void ProgramState::setLine(int line) {
 	m_currentLine = line;
 }
 
+bool ProgramState::isTerminated() {
+	return m_currentLine == -1;
+}
+
 bool ProgramState::containsVariable(string variableName) {
 	if (varMap->find(variableName) != varMap->end())
 		return true;

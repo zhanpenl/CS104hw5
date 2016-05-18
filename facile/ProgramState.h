@@ -40,6 +40,7 @@ public:
 	int getNumLines();
 	int getLine();
 	void setLine(int line);
+	bool isTerminated();
 
 	bool containsVariable(std::string);
 	int getValue(std::string);

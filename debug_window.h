@@ -16,6 +16,7 @@
 #include <QString>
 #include <string>
 #include <vector>
+#include <set>
 
 #include "inspect_window.h"
 #include "facile/Statement.h"
@@ -29,10 +30,13 @@ public:
 	~DebugWindow();
 
 	void addItem2CodeList(const std::string& line);
+	bool isBreak();
 
 private slots:
 void breakHighlight();
-void step();
+void pStep();
+void pContinue();
+void pNext();
 
 void errorConfirm();
 
@@ -71,7 +75,7 @@ private:
 
 	// Program associated with the file
 	std::vector<Statement* > program;
-	std::vector<int> breakpoints;
+	std::set<int> breakpoints;
 	ProgramState * state;
 };
 
